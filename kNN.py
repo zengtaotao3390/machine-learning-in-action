@@ -52,5 +52,52 @@ def showLine2Line3():
     ax.scatter(datingDataMat[:, 1], datingDataMat[:, 2], 15.0*array(datingDataLabels), 15.0*array(datingDataLabels))
     plt.show()
 
-showLine2Line3()
 
+def autoNorm(dataSet):
+    minVals = dataSet.min(0)
+    maxVals = dataSet.max(0)
+    ranges = maxVals - minVals
+    normDataSet = zeros(shape(dataSet))
+    lineNum = dataSet.shape[0]
+    normDataSet = dataSet - tile(minVals, (lineNum, 1))
+    normDataSet = normDataSet / tile(ranges, (lineNum, 1))
+    return normDataSet, ranges, minVals
+
+
+# datingDataMat, datingDataLabels = file2matrix('./machinelearninginaction/Ch02/datingTestSet2.txt')
+# normDataSet, ranges, minVals = autoNorm(datingDataMat)
+# print(datingDataMat)
+# print(normDataSet)
+# print(ranges)
+# print(minVals)
+
+
+def datingClassTest():
+    hoRatio = 0.10
+    datingDataMat, datingLabels = file2matrix('./machinelearninginaction/Ch02/datingTestSet2.txt')
+    normDataMat, ranges, minVals = autoNorm(datingDataMat)
+    m = normDataMat.shape[0]
+    numTestVecs = int(m * hoRatio)
+    errorCount = 0.0
+    for i in range(numTestVecs):
+        classifierResult = classify0(normDataMat[i, :], normDataMat[numTestVecs: m, :], datingLabels[numTestVecs: m], 3)
+        if classifierResult != datingLabels[i]:
+            errorCount += 1.0
+    print('the total error rate is : %f' % (errorCount / float(numTestVecs)))
+
+# datingClassTest()
+
+def classifyPerson():
+    resultList = ['not at all', 'is small doses', 'in large doses']
+    ffMilles = float(input('frequent flier miles earned per year?'))
+    percentTats = float(input('percentage of time spent playing video games?'))
+    iceCream = float(input('liters of ice cream consumed per year?'))
+    datingDataSet, datingLabels = file2matrix('./machinelearninginaction/Ch02/datingTestSet2.txt')
+    normDataSet, ranges, minVals = autoNorm(datingDataSet)
+    inArr = array([ffMilles, percentTats, iceCream])
+    classifierResult = classify0((inArr - minVals) / ranges, normDataSet, datingLabels, 3)
+    print(classifierResult)
+    print('you will probable like this person: ', resultList[classifierResult -1])
+
+
+classifyPerson()
