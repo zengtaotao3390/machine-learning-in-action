@@ -45,10 +45,27 @@ def splitDataSet(dataSet, axis, value):
     return retDataSet
 
 
-def calcBestFeature(dataSet):
+def chooseBestFeatureToSplit(dataSet):
     baseEntropy = calcShannonEnt(dataSet)
     featureNum = len(dataSet[0]) - 1
+    bestInfoGain = 0.0
+    bestFeatureAxis = -1
     for i in range(featureNum):
-        keys = set(dataSet[:][i])
-        for key in keys:
-            subDataSet = createDataSet()
+        entropyCount = 0.0
+        featureList = [example[i] for example in dataSet]
+        uniqueVals = set(featureList)
+        for value in uniqueVals:
+            subDataSet = splitDataSet(dataSet, i, value)
+            pro = len(subDataSet) / float(len(dataSet))
+            subDataSetShannonEntropy = calcShannonEnt(subDataSet)
+            entropyCount += pro * subDataSetShannonEntropy
+        infoGain = baseEntropy - entropyCount
+        if(bestInfoGain < infoGain):
+            bestInfoGain = infoGain
+            bestFeatureAxis = i
+    return bestFeatureAxis
+
+
+myData, labels = createDataSet()
+print(chooseBestFeatureToSplit(myData))
+print(myData)
