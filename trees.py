@@ -31,3 +31,5 @@ def createDataSet():
 
 mydata, labels = createDataSet()
 print(calcShannonEnt(mydata))
+mydata[0][-1] = 'maybe'
+print(calcShannonEnt(mydata))
