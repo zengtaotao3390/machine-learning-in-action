@@ -35,3 +35,20 @@ def createDataSet():
 # print(calcShannonEnt(mydata))
 
 
+def splitDataSet(dataSet, axis, value):
+    retDataSet = []
+    for featureVector in dataSet:
+        if featureVector[axis] == value:
+            reducedFeatureVector = featureVector[: axis]
+            reducedFeatureVector.extend(featureVector[axis + 1:])
+            retDataSet.append(reducedFeatureVector)
+    return retDataSet
+
+
+def calcBestFeature(dataSet):
+    baseEntropy = calcShannonEnt(dataSet)
+    featureNum = len(dataSet[0]) - 1
+    for i in range(featureNum):
+        keys = set(dataSet[:][i])
+        for key in keys:
+            subDataSet = createDataSet()
