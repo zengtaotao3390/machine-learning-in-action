@@ -1,4 +1,6 @@
 from math import log
+import operator
+
 
 def calcShannonEnt(dataSet):
     numEntities = len(dataSet)
@@ -66,6 +68,20 @@ def chooseBestFeatureToSplit(dataSet):
     return bestFeatureAxis
 
 
-myData, labels = createDataSet()
-print(chooseBestFeatureToSplit(myData))
-print(myData)
+# myData, labels = createDataSet()
+# print(chooseBestFeatureToSplit(myData))
+# print(myData)
+
+
+def majorityCount(classList):
+    classCount = {}
+    for vote in classCount:
+        if vote not in classCount.keys():
+            classCount[vote] = 0
+        classCount[vote] += 1
+    sortedClassCount = sorted(classCount.items(), key=operator.itemgetter[1], reverse=True)
+    return sortedClassCount[0][0]
+
+
+# labels 为属性值
+def createTree(dataSet, labels):
