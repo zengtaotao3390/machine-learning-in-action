@@ -85,3 +85,28 @@ def majorityCount(classList):
 
 # labels 为属性值
 def createTree(dataSet, labels):
+    classList = [example[-1] for example in dataSet]
+    # if classList.count(classList[0]) == len(classList):
+    #     return classList[0]
+    uniqueClassList = set(classList)
+    # 如果为一个类型
+    if len(uniqueClassList) == 1:
+        for classX in uniqueClassList:
+            return classX
+    # 只有一个特征属性，返回最大分类
+    if len(dataSet[0]) == 1:
+        return majorityCount(classList)
+    bestFeature = chooseBestFeatureToSplit(dataSet)
+    featureLabel = labels[bestFeature]
+    tree = {featureLabel: {}}
+    del(labels[bestFeature])
+    uniqueVal = set([example[bestFeature] for example in dataSet])
+    for key in uniqueVal:
+        copyLabels = labels[:]
+        subDataSet = splitDataSet(dataSet, bestFeature, key)
+        tree[featureLabel][key] = createTree(subDataSet, copyLabels)
+    return tree
+
+
+dataSet, labels = createDataSet()
+print(createTree(dataSet, labels))
