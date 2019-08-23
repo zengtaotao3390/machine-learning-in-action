@@ -108,5 +108,7 @@ def createTree(dataSet, labels):
     return tree
 
 
-dataSet, labels = createDataSet()
-print(createTree(dataSet, labels))
+# dataSet, labels = createDataSet()
+# print(createTree(dataSet, labels))
+
+
