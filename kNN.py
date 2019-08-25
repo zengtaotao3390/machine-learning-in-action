@@ -53,6 +53,8 @@ def showLine2Line3():
     plt.show()
 
 
+# showLine2Line3()
+
 def autoNorm(dataSet):
     minVals = dataSet.min(0)
     maxVals = dataSet.max(0)
@@ -100,4 +102,4 @@ def classifyPerson():
     print('you will probable like this person: ', resultList[classifierResult -1])
 
 
-classifyPerson()
+# classifyPerson()

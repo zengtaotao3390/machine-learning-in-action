@@ -112,3 +112,24 @@ def createTree(dataSet, labels):
 # print(createTree(dataSet, labels))
 
 
+def classify(inputTree, featLabels, testVec):
+    firstStr = list(inputTree.keys())[0]
+    featIndex = featLabels.index(firstStr)
+    secondDict = inputTree[firstStr]
+    for key in secondDict.keys():
+        if key == testVec[featIndex]:
+            if type(secondDict[key]).__name__ == 'dict':
+                classlabel = classify(secondDict[key], featLabels, testVec)
+            else:
+                classlabel = secondDict[key]
+
+    return classlabel
+
+
+dataSet, labels = createDataSet()
+tree1 = createTree(dataSet, labels[:])
+assert classify(tree1, labels, [1, 1]) == 'yes'
+assert classify(tree1, labels, [1, 1]) == 'yes'
+assert classify(tree1, labels, [1, 0]) == 'no'
+assert classify(tree1, labels, [0, 1]) == 'no'
+assert classify(tree1, labels, [0, 1]) == 'no'
