@@ -1,5 +1,6 @@
 from math import log
 import operator
+import pickle
 
 
 def calcShannonEnt(dataSet):
@@ -126,10 +127,25 @@ def classify(inputTree, featLabels, testVec):
     return classlabel
 
 
+# dataSet, labels = createDataSet()
+# tree1 = createTree(dataSet, labels[:])
+# assert classify(tree1, labels, [1, 1]) == 'yes'
+# assert classify(tree1, labels, [1, 1]) == 'yes'
+# assert classify(tree1, labels, [1, 0]) == 'no'
+# assert classify(tree1, labels, [0, 1]) == 'no'
+# assert classify(tree1, labels, [0, 1]) == 'no'
+
+
+def storeTree(inputTree, filename):
+    with open(filename, 'wb') as fw:
+        pickle.dump(inputTree, fw)
+
+
+def grabTree(filename):
+    with open(filename, 'rb') as fr:
+        return pickle.load(fr)
+
 dataSet, labels = createDataSet()
 tree1 = createTree(dataSet, labels[:])
-assert classify(tree1, labels, [1, 1]) == 'yes'
-assert classify(tree1, labels, [1, 1]) == 'yes'
-assert classify(tree1, labels, [1, 0]) == 'no'
-assert classify(tree1, labels, [0, 1]) == 'no'
-assert classify(tree1, labels, [0, 1]) == 'no'
+# storeTree(tree1, 'classifierStorage.txt')
+print(grabTree('classifierStorage.txt'))
