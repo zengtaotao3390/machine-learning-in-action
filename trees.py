@@ -1,6 +1,7 @@
 from math import log
 import operator
 import pickle
+import treePlotter
 
 
 def calcShannonEnt(dataSet):
@@ -145,7 +146,16 @@ def grabTree(filename):
     with open(filename, 'rb') as fr:
         return pickle.load(fr)
 
-dataSet, labels = createDataSet()
-tree1 = createTree(dataSet, labels[:])
+# dataSet, labels = createDataSet()
+# tree1 = createTree(dataSet, labels[:])
 # storeTree(tree1, 'classifierStorage.txt')
-print(grabTree('classifierStorage.txt'))
+# print(grabTree('classifierStorage.txt'))
+
+
+with open('./machinelearninginaction/Ch03/lenses.txt') as fr:
+    lenses = [inst.strip().split('\t') for inst in fr.readlines()]
+    print(lenses)
+    lensesLabels = ['age', 'preScript', 'astigmatic', 'tearRate']
+    lensesTree = createTree(lenses, lensesLabels[:])
+    treePlotter.createPlot(lensesTree)
+print(classify(lensesTree, lensesLabels, ['young', 'myope', 'yes', 'reduced']))
