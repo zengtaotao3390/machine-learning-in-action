@@ -1,4 +1,5 @@
 from numpy import *
+import re
 
 def loadDataSet():
     postingList=[['my', 'dog', 'has', 'flea', 'problems', 'help', 'please'],
@@ -99,5 +100,11 @@ def testingNB():
     thisDoc = array(setOfWords2Vec(myVocabList, testEntity))
     print('{}, classified as: {}'.format(testEntity, classifyNB(thisDoc, p0Vect, p1Vect, pAbusive)))
 
+# testingNB()
 
-testingNB()
+
+regEx = re.compile('\\W*')
+emailText = open('./machinelearninginaction/Ch04/email/ham/6.txt').read()
+listOfTokens = regEx.split(emailText)
+listOfTokens = [token.lower() for token in listOfTokens if len(token) > 0]
+print(listOfTokens)
