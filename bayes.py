@@ -29,6 +29,15 @@ def setOfWords2Vec(vocablarySet, inputSet):
     return returnVec
 
 
+def bagOfWords2Vec(vovablarySet, inputSet):
+    returnVec = [0] * len(vovablarySet)
+    for word in inputSet:
+        if word in vovablarySet:
+            returnVec[vovablarySet.index[word]] = 1
+        else:
+            print('the word {} is not in my Vocabulary!'.format(word))
+    return returnVec
+
 # listPosts, listClasses = loadDataSet()
 # myVocabList = createVocabList(listPosts)
 # print(myVocabList)
