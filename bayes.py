@@ -29,13 +29,39 @@ def setOfWords2Vec(vocablarySet, inputSet):
     return returnVec
 
 
+# listPosts, listClasses = loadDataSet()
+# myVocabList = createVocabList(listPosts)
+# print(myVocabList)
+# print(setOfWords2Vec(myVocabList, listPosts[0]))
+# print(setOfWords2Vec(myVocabList, listPosts[1]))
+
+
+def trainNB0(trainMatrix, trainCategory):
+    numTrainDocs = len(trainMatrix)
+    numWords = len(trainMatrix[0])
+    pAbusive = sum(trainCategory) / float(numTrainDocs)
+    p0Num = ones(numWords)
+    p1Num = ones(numWords)
+    p0Denom = 2.0
+    p1Denom = 2.0
+    for i in range(numTrainDocs):
+        if trainCategory[i] == 1:
+            p1Num += trainMatrix[i]
+            p1Denom += sum(trainMatrix[i])
+        else:
+            p0Num += trainMatrix[i]
+            p0Denom += sum(trainMatrix[i])
+    p0Vect = p0Num / p0Denom
+    p1Vect = p1Num / p1Denom
+    return p0Vect, p1Vect, pAbusive
+
 listPosts, listClasses = loadDataSet()
 myVocabList = createVocabList(listPosts)
+trainMat = []
+for postinDoc in listPosts:
+    trainMat.append(setOfWords2Vec(myVocabList, postinDoc))
 print(myVocabList)
-print(setOfWords2Vec(myVocabList, listPosts[0]))
-print(setOfWords2Vec(myVocabList, listPosts[1]))
-
-
-# sum1 = sum([1, 1, 0, 1])
-# print(sum1)
-print(sum(ones(3)))
+p0Vect, p1Vect, pAbusive = trainNB0(trainMat, listClasses)
+print(pAbusive)
+print(p0Vect)
+print(p1Vect)
