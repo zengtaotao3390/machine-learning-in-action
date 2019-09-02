@@ -55,13 +55,40 @@ def trainNB0(trainMatrix, trainCategory):
     p1Vect = p1Num / p1Denom
     return p0Vect, p1Vect, pAbusive
 
-listPosts, listClasses = loadDataSet()
-myVocabList = createVocabList(listPosts)
-trainMat = []
-for postinDoc in listPosts:
-    trainMat.append(setOfWords2Vec(myVocabList, postinDoc))
-print(myVocabList)
-p0Vect, p1Vect, pAbusive = trainNB0(trainMat, listClasses)
-print(pAbusive)
-print(p0Vect)
-print(p1Vect)
+# listPosts, listClasses = loadDataSet()
+# myVocabList = createVocabList(listPosts)
+# trainMat = []
+# for postinDoc in listPosts:
+#     trainMat.append(setOfWords2Vec(myVocabList, postinDoc))
+# print(myVocabList)
+# p0Vect, p1Vect, pAbusive = trainNB0(trainMat, listClasses)
+# print(pAbusive)
+# print(p0Vect)
+# print(p1Vect)
+
+
+def classifyNB(vec2Classify, p0Vect, p1Vect, p1Class):
+    p1 = sum(log(p1Vect) * vec2Classify) + log(p1Class)
+    p0 = sum(log(p0Vect) * vec2Classify) + log(1 - p1Class)
+    if p1 > p0 :
+        return 1
+    else:
+        return 0
+
+
+def testingNB():
+    listPosts, listClasses = loadDataSet()
+    myVocabList = createVocabList(listPosts)
+    trainMat = []
+    for postinDoc in listPosts:
+        trainMat.append(setOfWords2Vec(myVocabList, postinDoc))
+    p0Vect, p1Vect, pAbusive = trainNB0(trainMat, listClasses)
+    testEntity = ['love', 'my', 'dalmation']
+    thisDoc = array(setOfWords2Vec(myVocabList, testEntity))
+    print('{}, classified as: {}'.format(testEntity, classifyNB(thisDoc, p0Vect, p1Vect, pAbusive)))
+    testEntity = ['stupid', 'garbage']
+    thisDoc = array(setOfWords2Vec(myVocabList, testEntity))
+    print('{}, classified as: {}'.format(testEntity, classifyNB(thisDoc, p0Vect, p1Vect, pAbusive)))
+
+
+testingNB()
