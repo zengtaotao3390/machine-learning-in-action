@@ -1,5 +1,6 @@
 from numpy import *
 import re
+import random
 
 def loadDataSet():
     postingList=[['my', 'dog', 'has', 'flea', 'problems', 'help', 'please'],
@@ -103,8 +104,62 @@ def testingNB():
 # testingNB()
 
 
-regEx = re.compile('\\W*')
-emailText = open('./machinelearninginaction/Ch04/email/ham/6.txt').read()
-listOfTokens = regEx.split(emailText)
-listOfTokens = [token.lower() for token in listOfTokens if len(token) > 0]
-print(listOfTokens)
+# regEx = re.compile(r'\W*')
+# emailText = open('./machinelearninginaction/Ch04/email/ham/6.txt').read()
+# listOfTokens = regEx.split(emailText)
+# listOfTokens = [token.lower() for token in listOfTokens if len(token) > 0]
+# print(listOfTokens)
+
+
+def textParse(bigString):
+    listOfTokens = re.split(r'\W*', bigString)
+    return [token.lower() for token in listOfTokens if len(token) > 2]
+
+
+def spamTest():
+    fullText = []; trainText = []; classify = []
+    for i in range(1, 26):
+        with open('./machinelearninginaction/Ch04/email/spam/{}.txt'.format(i)) as file:
+            emailText = file.read()
+            listOfTokens = textParse(emailText)
+            fullText.extend(listOfTokens)
+            trainText.append(listOfTokens)
+            classify.extend(1)
+        with open('./machinelearninginaction/Ch04/email/ham/{}.txt'.format(i)) as file:
+            emailText = file.read()
+            listOfTokens = textParse(emailText)
+            fullText.extend(listOfTokens)
+            trainText.append(listOfTokens)
+            classify.extend(0)
+    testSet = []
+    trainSet = range(50)
+    # 原来的数据都被删除，所以随机数是一样的，值也是不一样的
+    for i in range(10):
+        randomIndex = int(random.uniform(len(trainSet)))
+        testSet.append(trainSet[randomIndex])
+        del(trainSet[randomIndex])
+    # 开始训练
+    trainMatrix = []
+    trainClass = []
+    vocabList = createVocabList(trainText)
+    for docIndex in trainSet:
+        trainMatrix.append(setOfWords2Vec(vocabList, trainText.index(docIndex)))
+        trainClass.append(classify.index(docIndex))
+    p0Vect, p1Vect, pAbusive = trainNB0(trainMatrix, classify)
+    testMatrix = []
+    testClass = []
+    for docIndex in testSet:
+        testMatrix.append(setOfWords2Vec(vocabList, trainText.index(docIndex)))
+        testClass.append(classify.index(docIndex))
+
+    for i in len(trainMatrix):
+        testDoc = trainMatrix[i]
+        pridictionClass = classifyNB(testDoc, p0Vect, p1Vect, testClass)
+        errorCount = 0
+        if pridictionClass != testClass[i]:
+            errorCount += 1
+        else:
+            print('pridiction error text \n: {}', textParse())
+    print('pridiction error late: {}', float(errorCount / 10))
+
+spamTest()
