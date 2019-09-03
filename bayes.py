@@ -1,6 +1,7 @@
 from numpy import *
 import re
 import random
+import operator
 
 def loadDataSet():
     postingList=[['my', 'dog', 'has', 'flea', 'problems', 'help', 'please'],
@@ -117,49 +118,55 @@ def textParse(bigString):
 
 
 def spamTest():
-    fullText = []; trainText = []; classify = []
+    fullText = []; orgText = []; classify = []
     for i in range(1, 26):
         with open('./machinelearninginaction/Ch04/email/spam/{}.txt'.format(i)) as file:
             emailText = file.read()
             listOfTokens = textParse(emailText)
             fullText.extend(listOfTokens)
-            trainText.append(listOfTokens)
-            classify.extend(1)
+            orgText.append(listOfTokens)
+            classify.append(1)
         with open('./machinelearninginaction/Ch04/email/ham/{}.txt'.format(i)) as file:
             emailText = file.read()
             listOfTokens = textParse(emailText)
             fullText.extend(listOfTokens)
-            trainText.append(listOfTokens)
-            classify.extend(0)
+            orgText.append(listOfTokens)
+            classify.append(0)
     testSet = []
-    trainSet = range(50)
+    trainSet = list(range(50))
     # 原来的数据都被删除，所以随机数是一样的，值也是不一样的
     for i in range(10):
-        randomIndex = int(random.uniform(len(trainSet)))
+        randomIndex = int(random.uniform(0, len(trainSet)))
         testSet.append(trainSet[randomIndex])
         del(trainSet[randomIndex])
     # 开始训练
     trainMatrix = []
     trainClass = []
-    vocabList = createVocabList(trainText)
+    vocabList = createVocabList(orgText)
     for docIndex in trainSet:
-        trainMatrix.append(setOfWords2Vec(vocabList, trainText.index(docIndex)))
-        trainClass.append(classify.index(docIndex))
-    p0Vect, p1Vect, pAbusive = trainNB0(trainMatrix, classify)
-    testMatrix = []
-    testClass = []
+        trainMatrix.append(setOfWords2Vec(vocabList, orgText[docIndex]))
+        trainClass.append(classify[docIndex])
+    p0Vect, p1Vect, pAbusive = trainNB0(trainMatrix, trainClass)
+    # testMatrix = []
+    # testClass = []
+    # for docIndex in testSet:
+    #     testMatrix.append(setOfWords2Vec(vocabList, orgText[docIndex]))
+    #     testClass.append(classify[docIndex])
+
+    errorCount = 0
     for docIndex in testSet:
-        testMatrix.append(setOfWords2Vec(vocabList, trainText.index(docIndex)))
-        testClass.append(classify.index(docIndex))
-
-    for i in len(trainMatrix):
-        testDoc = trainMatrix[i]
-        pridictionClass = classifyNB(testDoc, p0Vect, p1Vect, testClass)
-        errorCount = 0
-        if pridictionClass != testClass[i]:
+        testDoc = orgText[docIndex]
+        pridictionClass = classifyNB(setOfWords2Vec(vocabList, orgText[docIndex]), p0Vect, p1Vect, pAbusive)
+        if pridictionClass != classify[docIndex]:
             errorCount += 1
-        else:
-            print('pridiction error text \n: {}', textParse())
-    print('pridiction error late: {}', float(errorCount / 10))
+            print(docIndex)
+            print('pridiction error text \n: {}'.format(testDoc))
+    errorRate  = float(errorCount / len(testSet))
+    print('pridiction error rate: {}'.format(errorRate))
+    return errorRate
 
-spamTest()
+errorRateCount = 0.0
+for i in range(1000):
+    errorRateCount += spamTest()
+print('average rate: {}'.format(errorRateCount / 1000))
+# 一千次的错误率在0.0491
