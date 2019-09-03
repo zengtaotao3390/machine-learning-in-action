@@ -36,7 +36,7 @@ def bagOfWords2Vec(vovablarySet, inputSet):
     returnVec = [0] * len(vovablarySet)
     for word in inputSet:
         if word in vovablarySet:
-            returnVec[vovablarySet.index[word]] = 1
+            returnVec[vovablarySet.index(word)] += 1
         else:
             print('the word {} is not in my Vocabulary!'.format(word))
     return returnVec
@@ -144,19 +144,14 @@ def spamTest():
     trainClass = []
     vocabList = createVocabList(orgText)
     for docIndex in trainSet:
-        trainMatrix.append(setOfWords2Vec(vocabList, orgText[docIndex]))
+        trainMatrix.append(bagOfWords2Vec(vocabList, orgText[docIndex]))
         trainClass.append(classify[docIndex])
     p0Vect, p1Vect, pAbusive = trainNB0(trainMatrix, trainClass)
-    # testMatrix = []
-    # testClass = []
-    # for docIndex in testSet:
-    #     testMatrix.append(setOfWords2Vec(vocabList, orgText[docIndex]))
-    #     testClass.append(classify[docIndex])
 
     errorCount = 0
     for docIndex in testSet:
         testDoc = orgText[docIndex]
-        pridictionClass = classifyNB(setOfWords2Vec(vocabList, orgText[docIndex]), p0Vect, p1Vect, pAbusive)
+        pridictionClass = classifyNB(bagOfWords2Vec(vocabList, orgText[docIndex]), p0Vect, p1Vect, pAbusive)
         if pridictionClass != classify[docIndex]:
             errorCount += 1
             print(docIndex)
@@ -169,4 +164,5 @@ errorRateCount = 0.0
 for i in range(1000):
     errorRateCount += spamTest()
 print('average rate: {}'.format(errorRateCount / 1000))
-# 一千次的错误率在0.0491
+# 一千次的错误率在词集模型0.0491
+# 一千次的错误率在词袋模型0.0628
