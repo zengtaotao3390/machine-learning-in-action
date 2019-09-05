@@ -1,5 +1,6 @@
 from numpy import *
 import matplotlib.pyplot as plt
+import random
 
 def loadData():
     with open('./machinelearninginaction/Ch05/testSet.txt') as orgFile:
@@ -43,6 +44,20 @@ def stochasticGradientAscent(dataSet, classLabel):
         weights = weights + alpha * error * dataSet[i]
     return weights
 
+def stochasticGradientAscent1(dataSet, clasLabel, iterNum=550):
+    rowNum, columnNum = shape(dataSet)
+    weights = ones(columnNum)
+    for i in range(iterNum):
+        indexList = list(range(rowNum))
+        for j in range(rowNum):
+            alpha = 4 / (1.0 + i + j) + 0.01
+            index = int(random.uniform(0, len(indexList)))
+            preLabel = sigmoid(sum(dataSet[index] * weights))
+            error = clasLabel[index] - preLabel
+            weights = weights+ alpha * error * dataSet[index]
+            del(indexList[index])
+    return weights
+
 # dataSet, classLabel = loadData()
 # print(gradientAscent(dataSet, classLabel))
 
@@ -52,7 +67,7 @@ def plotBestFit():
     dataSet, classLabel = loadData()
     rowNum = shape(dataSet)[0]
     # python 的数组要转换成numpy的的数组才能操作
-    weights = stochasticGradientAscent(array(dataSet), classLabel)
+    weights = stochasticGradientAscent1(array(dataSet), classLabel)
     for i in range(rowNum):
         if int(classLabel[i]) == 1:
             aPointX.append(dataSet[i][1])
