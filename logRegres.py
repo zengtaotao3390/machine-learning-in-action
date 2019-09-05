@@ -32,6 +32,17 @@ def gradientAscent(dataSet, classLabel):
     return weights
 
 
+def stochasticGradientAscent(dataSet, classLabel):
+    rowNum, columnNum = shape(dataSet)
+    alpha = 0.01
+    weights = ones(columnNum)
+    for i in range(rowNum):
+        preLabel = sigmoid(sum(dataSet[i] * weights))
+        error = classLabel[i] - preLabel
+        print(dataSet[i])
+        weights = weights + alpha * error * dataSet[i]
+    return weights
+
 # dataSet, classLabel = loadData()
 # print(gradientAscent(dataSet, classLabel))
 
@@ -40,7 +51,8 @@ def plotBestFit():
     bPointX= []; bPointY = []
     dataSet, classLabel = loadData()
     rowNum = shape(dataSet)[0]
-    weights = gradientAscent(dataSet, classLabel).A
+    # python 的数组要转换成numpy的的数组才能操作
+    weights = stochasticGradientAscent(array(dataSet), classLabel)
     for i in range(rowNum):
         if int(classLabel[i]) == 1:
             aPointX.append(dataSet[i][1])
