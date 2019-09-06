@@ -85,4 +85,52 @@ def plotBestFit():
     plt.xlabel('X1');plt.ylabel('X2')
     plt.show()
 
-plotBestFit()
+# plotBestFit()
+
+def logisticClassify(inX, weights):
+    prob =  sigmoid(sum(inX * weights))
+    if prob > 0.5:
+        return 1.0
+    else:
+        return 0.0
+
+
+def trainLogisticWeights():
+    trainLines = []; testLines = []
+    trainDataSet = [];trainLabels = []
+    with open('./machinelearninginaction/Ch05/horseColicTraining.txt') as trainFile:
+        trainLines = trainFile.readlines()
+    with open('./machinelearninginaction/Ch05/horseColicTest.txt') as testFile:
+        testLines = testFile.readlines()
+    for trainLine in trainLines:
+        lineSplitDatas = trainLine.strip().split('\t')
+        trainData = []
+        for i in range(21):
+            trainData.append(float(lineSplitDatas[i]))
+        trainDataSet.append(trainData)
+        trainLabels.append(float(lineSplitDatas[-1]))
+    weithts = stochasticGradientAscent1(array(trainDataSet), trainLabels, 1000)
+    errorCount = 0
+    #   计算错误率
+    for testLine in testLines:
+        testSplitDatas = testLine.strip().split('\t')
+        testData = []
+        for i in range(21):
+            testData.append(float(testSplitDatas[i]))
+        predictionLabel = logisticClassify(testData, weithts)
+        if int(predictionLabel) != int(testSplitDatas[-1]):
+            errorCount += 1
+    errorRate = float(errorCount) / len(testLines)
+    print('iteration error rate: {}'.format(errorRate))
+    return errorRate
+
+def testAverageRate():
+    iterationNum = 10
+    errorRateCount = 0.0
+    for i in range(iterationNum):
+        errorRate = trainLogisticWeights()
+        errorRateCount += errorRate
+    averageRate = errorRateCount / (iterationNum)
+    print('average errrro rage: {}'.format(averageRate))
+
+testAverageRate()
