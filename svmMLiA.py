@@ -128,9 +128,102 @@ def smoSimple1(dataMatIn, classLabels, C, toler, maxIter):
         print("iteration number: {}".format(iter))
     return b,alphas
 
-dataMatIn, classLabels = loadDataSet('./machinelearninginaction/Ch06/testSet.txt')
-b, alphas = smoSimple(dataMatIn, classLabels, 0.6, 0.001, 40)
-print(alphas[alphas > 0])
-for i in range(100):
-    if alphas[i] > 0.0 :
-        print(dataMatIn[i], classLabels[i])
+# dataMatIn, classLabels = loadDataSet('./machinelearninginaction/Ch06/testSet.txt')
+# b, alphas = smoSimple(dataMatIn, classLabels, 0.6, 0.001, 40)
+# print(alphas[alphas > 0])
+# for i in range(100):
+#     if alphas[i] > 0.0 :
+#         print(dataMatIn[i], classLabels[i])
+
+class optStruct:
+    def __init__(self, dataMatIn, classLabels, C, toler):
+        self.X = dataMatIn
+        self.labelMat = classLabels
+        self.C = C
+        self.tol = toler
+        self.m = shape(dataMatIn)[0]
+        self.alphas = mat(zeros((self.m, 1)))
+        self.b = 0
+        self.eCache = mat(zeros((self.m, 2)))
+
+
+def calcEk(oS :optStruct, k):
+    fXk = float(multiply(oS.alphas, oS.labelMat).T * (oS.X * os.X[k, :].T)) + oS.b
+    Ek = fXk - oS.labelMat[k]
+    return Ek
+
+
+def selectJ(i, oS: optStruct, Ei):
+    maxK = -1
+    maxDeltaE = 0
+    Ej = 0
+    oS.eCache[i] = [1, Ei]
+    validEcacheList = nonzero(oS.alphas[:, 0].A)[0]
+    if len(validEcacheList) > 1:
+        # return non zero index
+        for k in validEcacheList:
+            if k == i:
+                continue
+            Ek = calcEk(oS, k)
+            deltaE = abs(Ei - Ej)
+            if(deltaE > maxDeltaE):
+                maxDeltaE = deltaE
+                maxK = k
+                Ej = Ek
+        return maxK, Ej
+    else:
+        j = selectJrand(i, oS.m)
+        Ej = calcEk(oS, j)
+    return j, Ej
+
+
+def updateEk(oS: optStruct, k):
+    Ek = calcEk(oS, k)
+    oS.eCache[k] = [1, Ek]
+
+
+def innerLoop(i, oS: optStruct):
+    Ei = calcEk(oS, i)
+    if ((oS.labelMat[i] * Ei < -oS.tol) and (oS.alphas[i] < oS.C)) or ((oS.labelMat[i] * Ei > oS.tol) and (oS.alphas[i] > 0)):
+        j, Ej = selectJ(i , oS, Ei)
+        alphaIOld = oS.alphas[i].copy()
+        alphaJOld = oS.alphas[j].copy()
+        if oS.labelMat[i] != oS.labelMat[j]:
+            L = max(0, oS.alphas[j] - oS.alphas[i])
+            H = min(oS.C, oS.C + oS.alphas[j] - oS.alphas[i])
+        else:
+            L = max(0, oS.alphas[j] + oS.alphas[i] - oS.C)
+            H = min(oS.C, oS.alphas[i] + oS.alphas[j])
+        if H == L:
+            print("L == H")
+            return 0
+        eta = 2.0 * oS.X[i, :] * oS.X[j, :].T - oS.X[i, :] * oS.X[i, :].T - oS.X[j, :] * oS.X[j, :].T
+        if eta >= 0:
+            print('eta >= 0')
+            return 0
+        oS.alphas[j] -= oS.labelMat[j] * (Ei - Ej) / eta
+        oS.alphas[j] = clipAlpha(oS.alphas[j], H, L)
+        updateEk(oS, j)
+        if abs(oS.alphas[j] - alphaJOld) < 0.00001:
+            print('j not moving enough')
+            return 0
+        oS.alphas[i] += oS.labelMat[j] * oS.labelMat[i] * (alphaJOld - alphaIOld)
+        updateEk(oS, i)
+        b1 = oS.b - Ei - oS.labelMat[i] * (oS.alphas[i] - alphaIOld) * oS.X[i, :] * oS.X[i, :].T - oS.labelMat[j] * (oS.alphas[j] - alphaJOld) * oS.X[i, :] * oS[j, :].T
+        b2 = oS.b - Ej - oS.labelMat[i] * (oS.alphas[i] - alphaIOld) * oS.X[i, :] * oS.X[j, :].T - oS.labelMat[j] * (oS.alphas[j] - alphaJOld) * oS.X[j, :] * oS[j, :].T
+        if 0 < oS.alphas[i] < oS.C:
+            oS.b = b1
+        if 0 < oS.alphas[j] < oS.C:
+            oS.b = b2
+        else:
+            oS.b = (b1 + b2) / 2.0
+        return 1
+    else:
+        return 0
+
+
+def smoP(dataMatIn, classLabels, C, toler, maxIter, KTup=('lin', 0)):
+    oS = optStruct(mat(dataMatIn), mat(classLabels).T, C, toler)
+    iter = 0
+    entireSet = True
+    alphaPairsChanged = 0
