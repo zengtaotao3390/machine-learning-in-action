@@ -128,12 +128,12 @@ def smoSimple1(dataMatIn, classLabels, C, toler, maxIter):
         print("iteration number: {}".format(iter))
     return b,alphas
 
-dataMatIn, classLabels = loadDataSet('./machinelearninginaction/Ch06/testSet.txt')
-b, alphas = smoSimple(dataMatIn, classLabels, 0.6, 0.001, 40)
-print(alphas[alphas > 0])
-for i in range(100):
-    if alphas[i] > 0.0 :
-        print(dataMatIn[i], classLabels[i])
+# dataMatIn, classLabels = loadDataSet('./machinelearninginaction/Ch06/testSet.txt')
+# b, alphas = smoSimple(dataMatIn, classLabels, 0.6, 0.001, 40)
+# print(alphas[alphas > 0])
+# for i in range(100):
+#     if alphas[i] > 0.0 :
+#         print(dataMatIn[i], classLabels[i])
 
 class optStruct:
     def __init__(self, dataMatIn, classLabels, C, toler):
@@ -248,10 +248,33 @@ def smoP(dataMatIn, classLabels, C, toler, maxIter, KTup=('lin', 0)):
         print('iteration bumber: {}'.format(iter))
     return oS.b, oS.alphas
 
-dataMatIn, classLabels = loadDataSet('./machinelearninginaction/Ch06/testSet.txt')
-b, alphas = smoP(dataMatIn, classLabels, 0.6, 0.001, 40)
+dataIn, classLabels = loadDataSet('./machinelearninginaction/Ch06/testSet.txt')
+b, alphas = smoP(dataIn, classLabels, 0.6, 0.001, 40)
 print(alphas[alphas > 0])
 for i in range(100):
     if alphas[i] > 0.0 :
-        print(dataMatIn[i], classLabels[i])
+        print(dataIn[i], classLabels[i])
+
+
+def calcWs(alphas, dataArr, classLabels):
+    X = mat(dataArr)
+    labelMat = mat(classLabels).T
+    m, n = shape(X)
+    w = zeros((n, 1))
+    for i in range(m):
+        w += multiply(alphas[i] * labelMat[i], X[i, :].T)
+    return w
+# dataMatIn, classLabels = loadDataSet('./machinelearninginaction/Ch06/testSet.txt')
+# b, alphas = smoP(dataMatIn, classLabels, 0.6, 0.001, 40)
+ws = calcWs(alphas, dataIn, classLabels)
+print(ws)
+
+dataMat = mat(dataIn)
+index = 9
+predictLabel = dataMat[index] * mat(ws) + b
+print(predictLabel)
+print(classLabels[index])
+
+
+
 
