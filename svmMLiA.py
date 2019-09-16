@@ -30,7 +30,7 @@ def clipAlpha(aj, H, L):
 
 
 def smoSimple(dataMatIn, classLabels, C, toler, maxIter):
-    dataMatrix = mat(dataMatIn);
+    dataMatrix = mat(dataMatIn)
     labelMat = mat(classLabels).transpose()
     b = 0
     m, n = shape(dataMatrix)
@@ -128,12 +128,12 @@ def smoSimple1(dataMatIn, classLabels, C, toler, maxIter):
         print("iteration number: {}".format(iter))
     return b,alphas
 
-# dataMatIn, classLabels = loadDataSet('./machinelearninginaction/Ch06/testSet.txt')
-# b, alphas = smoSimple(dataMatIn, classLabels, 0.6, 0.001, 40)
-# print(alphas[alphas > 0])
-# for i in range(100):
-#     if alphas[i] > 0.0 :
-#         print(dataMatIn[i], classLabels[i])
+dataMatIn, classLabels = loadDataSet('./machinelearninginaction/Ch06/testSet.txt')
+b, alphas = smoSimple(dataMatIn, classLabels, 0.6, 0.001, 40)
+print(alphas[alphas > 0])
+for i in range(100):
+    if alphas[i] > 0.0 :
+        print(dataMatIn[i], classLabels[i])
 
 class optStruct:
     def __init__(self, dataMatIn, classLabels, C, toler):
@@ -148,7 +148,7 @@ class optStruct:
 
 
 def calcEk(oS :optStruct, k):
-    fXk = float(multiply(oS.alphas, oS.labelMat).T * (oS.X * os.X[k, :].T)) + oS.b
+    fXk = float(multiply(oS.alphas, oS.labelMat).T * (oS.X * oS.X[k, :].T)) + oS.b
     Ek = fXk - oS.labelMat[k]
     return Ek
 
@@ -207,10 +207,10 @@ def innerLoop(i, oS: optStruct):
         if abs(oS.alphas[j] - alphaJOld) < 0.00001:
             print('j not moving enough')
             return 0
-        oS.alphas[i] += oS.labelMat[j] * oS.labelMat[i] * (alphaJOld - alphaIOld)
+        oS.alphas[i] += oS.labelMat[j] * oS.labelMat[i] * (alphaJOld - oS.alphas[j])
         updateEk(oS, i)
-        b1 = oS.b - Ei - oS.labelMat[i] * (oS.alphas[i] - alphaIOld) * oS.X[i, :] * oS.X[i, :].T - oS.labelMat[j] * (oS.alphas[j] - alphaJOld) * oS.X[i, :] * oS[j, :].T
-        b2 = oS.b - Ej - oS.labelMat[i] * (oS.alphas[i] - alphaIOld) * oS.X[i, :] * oS.X[j, :].T - oS.labelMat[j] * (oS.alphas[j] - alphaJOld) * oS.X[j, :] * oS[j, :].T
+        b1 = oS.b - Ei - oS.labelMat[i] * (oS.alphas[i] - alphaIOld) * oS.X[i, :] * oS.X[i, :].T - oS.labelMat[j] * (oS.alphas[j] - alphaJOld) * oS.X[i, :] * oS.X[j, :].T
+        b2 = oS.b - Ej - oS.labelMat[i] * (oS.alphas[i] - alphaIOld) * oS.X[i, :] * oS.X[j, :].T - oS.labelMat[j] * (oS.alphas[j] - alphaJOld) * oS.X[j, :] * oS.X[j, :].T
         if 0 < oS.alphas[i] < oS.C:
             oS.b = b1
         if 0 < oS.alphas[j] < oS.C:
@@ -223,7 +223,35 @@ def innerLoop(i, oS: optStruct):
 
 
 def smoP(dataMatIn, classLabels, C, toler, maxIter, KTup=('lin', 0)):
-    oS = optStruct(mat(dataMatIn), mat(classLabels).T, C, toler)
+    oS = optStruct(mat(dataMatIn), mat(classLabels).transpose(), C, toler)
     iter = 0
     entireSet = True
     alphaPairsChanged = 0
+    while(iter < maxIter) and ((alphaPairsChanged > 0) or (entireSet)):
+        alphaPairsChanged = 0
+        if entireSet:
+            for i in range(oS.m):
+                alphaPairsChanged += innerLoop(i, oS)
+                print("full set, iter:{} i {}, pairs changed {}".format(iter, i, alphaPairsChanged))
+            iter += 1
+        else:
+            # 得到满足条件的非零值的下标，false为0
+            nonBoundIs = nonzero((oS.alphas.A > 0) * (oS.alphas.A < C))[0]
+            for i in nonBoundIs:
+                alphaPairsChanged += innerLoop(i, oS)
+                print('non-bound, iter: {} i {}, pairs changed {}'.format(iter, i, alphaPairsChanged))
+            iter += 1
+        if entireSet:
+            entireSet = False
+        elif alphaPairsChanged == 0:
+            entireSet = True
+        print('iteration bumber: {}'.format(iter))
+    return oS.b, oS.alphas
+
+dataMatIn, classLabels = loadDataSet('./machinelearninginaction/Ch06/testSet.txt')
+b, alphas = smoP(dataMatIn, classLabels, 0.6, 0.001, 40)
+print(alphas[alphas > 0])
+for i in range(100):
+    if alphas[i] > 0.0 :
+        print(dataMatIn[i], classLabels[i])
+
