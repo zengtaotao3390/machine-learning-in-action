@@ -87,3 +87,20 @@ def adaBoostTrainDS(dataArr, classLabels, numIt = 40):
 # print(classifierArray)
 
 
+def adaClassify(dataToClass, classifierArray):
+    dataMat = mat(dataToClass)
+    m = shape(dataMat)[0]
+    aggregateEstimate = mat(zeros((m ,1)))
+    for i in range(len(classifierArray)):
+        classEstimate = stumpClassify(dataMat, classifierArray[i]['dimension'], classifierArray[i]['threshold'], classifierArray[i]['ineq'])
+        aggregateEstimate += classifierArray[i]['alpha'] * classEstimate
+        print(aggregateEstimate)
+    return sign(aggregateEstimate)
+
+
+dataMat, classLabels = loadSimpData()
+classifierArray = adaBoostTrainDS(dataMat, classLabels, 9)
+predictLabel = adaClassify([0, 0], classifierArray)
+print(predictLabel)
+predictLabel = adaClassify([[5, 5], [0, 0]], classifierArray)
+print(predictLabel)
