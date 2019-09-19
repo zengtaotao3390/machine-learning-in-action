@@ -80,7 +80,7 @@ def adaBoostTrainDS(dataArr, classLabels, numIt = 40):
         print('total error: ', errorRate, "\n")
         if errorRate == 0.0:
             break
-    return weakClassArr
+    return weakClassArr, aggregateClassEstimate
 
 # dataMat, classLabels = loadSimpData()
 # classifierArray = adaBoostTrainDS(dataMat, classLabels, 9)
@@ -98,9 +98,61 @@ def adaClassify(dataToClass, classifierArray):
     return sign(aggregateEstimate)
 
 
-dataMat, classLabels = loadSimpData()
-classifierArray = adaBoostTrainDS(dataMat, classLabels, 9)
-predictLabel = adaClassify([0, 0], classifierArray)
-print(predictLabel)
-predictLabel = adaClassify([[5, 5], [0, 0]], classifierArray)
-print(predictLabel)
+# dataMat, classLabels = loadSimpData()
+# classifierArray = adaBoostTrainDS(dataMat, classLabels, 9)
+# predictLabel = adaClassify([0, 0], classifierArray)
+# print(predictLabel)
+# predictLabel = adaClassify([[5, 5], [0, 0]], classifierArray)
+# print(predictLabel)
+
+
+def plotRoc(classLabels, aggregateEstimate):
+    import matplotlib.pyplot as plt
+    posSampleNum = sum(array(classLabels) == 1.0)
+    cursor = (1.0, 1.0)
+    yStep = float(1 / posSampleNum)
+    xStep = float(1 / (len(classLabels) - posSampleNum))
+    ySum = 0.0
+    sortedAggregateEstimate = aggregateEstimate.argsort()
+    fig = plt.figure()
+    fig.clf()
+    ax = plt.subplot(111)
+    for index in sortedAggregateEstimate.tolist()[0]:
+        if classLabels[index] == 1:
+            xDel = 0
+            yDel = yStep
+        else:
+            xDel = xStep
+            yDel = 0
+            ySum += cursor[1] * xStep
+        ax.plot([cursor[0], cursor[0] - xDel], [cursor[1], cursor[1] - yDel], c='b')
+        cursor = (cursor[0] - xDel, cursor[1] - yDel)
+    ax.plot([0, 1], [0, 1], 'b--')
+    plt.xlabel('False Positive Rate')
+    plt.ylabel('True Positive Rate')
+    plt.title('ROC curve for AdaBoost Horse Colic Detection System')
+    ax.axis([0, 1, 0, 1])
+    plt.show()
+    print('the Area Under the Curve is :{}', ySum)
+
+
+def loadDataSet(fileName):
+    numFeat = len(open(fileName).readline().split('\t'))
+    dataMat = []
+    labelMat = []
+    fr = open(fileName)
+    for line in fr.readlines():
+        lineArr = []
+        curLine = line.strip().split('\t')
+        for i in range(numFeat - 1):
+            lineArr.append(float(curLine[i]))
+        dataMat.append(lineArr)
+        labelMat.append(float(curLine[-1]))
+    return dataMat, labelMat
+
+
+
+
+dataMat, classLabels = loadDataSet('./machinelearninginaction/Ch07/horseColicTraining2.txt')
+classifierArray, aggregateClassEstimate = adaBoostTrainDS(dataMat, classLabels, 9)
+plotRoc(classLabels, aggregateClassEstimate.T)
