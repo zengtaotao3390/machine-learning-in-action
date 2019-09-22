@@ -161,9 +161,10 @@ def stageWise(xArr, yArr, dis=0.01, numItera=100):
     ws = np.zeros((1, n))
     testWs = ws.copy()
     bestWs = ws.copy()
-    minRssError = np.inf
+    # minRssError = np.inf
     for i in range(numItera):
         print(ws)
+        # minRssError = np.inf
         for j in range(n):
             for direction in [-1, 1]:
                 testWs = ws.copy()
@@ -179,4 +180,8 @@ def stageWise(xArr, yArr, dis=0.01, numItera=100):
 
 
 abX, abY = loadDataSet('./machinelearninginaction/Ch08/abalone.txt')
-stageWise(abX, abY, 0.01, 200)
+returnMat = stageWise(abX, abY, 0.01, 200)
+fig = plt.figure()
+ax = fig.add_subplot(111)
+ax.plot(returnMat)
+plt.show()
