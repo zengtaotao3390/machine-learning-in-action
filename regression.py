@@ -136,12 +136,47 @@ def ridgeTest(xArr, yArr):
     return wmat
 
 
+# abX, abY = loadDataSet('./machinelearninginaction/Ch08/abalone.txt')
+# redgeWeights = ridgeTest(abX, abY)
+# fig = plt.figure()
+# ax = fig.add_subplot(111)
+# ax.plot(redgeWeights)
+# plt.show()
+
+
+# 向前逐步线性回归
+def regularize(xMat):
+    xMeans = np.mean(xMat, 0)
+    xVar = np.var(xMat, 0)
+    return (xMat - xMeans) / xVar
+
+def stageWise(xArr, yArr, dis=0.01, numItera=100):
+    xMat = np.mat(xArr)
+    yMat = np.mat(yArr).T
+    yMean = np.mean(yMat, 0)
+    yMat = yMat - yMean
+    xMat = regularize(xMat)
+    m, n = np.shape(xMat)
+    returnMat = np.zeros((numItera, n))
+    ws = np.zeros((1, n))
+    testWs = ws.copy()
+    bestWs = ws.copy()
+    minRssError = np.inf
+    for i in range(numItera):
+        print(ws)
+        for j in range(n):
+            for direction in [-1, 1]:
+                testWs = ws.copy()
+                testWs[:, j] += direction * dis
+                prediction = xMat * testWs.T
+                thisRssError = rssError(yMat.A, prediction.A)
+                if thisRssError < minRssError:
+                    minRssError = thisRssError
+                    bestWs = testWs
+        ws = bestWs.copy()
+        returnMat[i, :] = ws
+    return returnMat
+
+
 abX, abY = loadDataSet('./machinelearninginaction/Ch08/abalone.txt')
-redgeWeights = ridgeTest(abX, abY)
-fig = plt.figure()
-ax = fig.add_subplot(111)
-ax.plot(redgeWeights)
-plt.show()
-
-
-
+stageWise(abX, abY, 0.01, 200)
