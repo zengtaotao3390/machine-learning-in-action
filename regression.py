@@ -88,24 +88,60 @@ def rssError(yArr, yHarArr):
     return ((yArr - yHarArr)**2).sum()
 
 
+# abX, abY = loadDataSet('./machinelearninginaction/Ch08/abalone.txt')
+# yHat01 = lwlrTest(abX[0: 99], abX[0: 99], abY[0: 99], 0.1)
+# yHat1 = lwlrTest(abX[0: 99], abX[0: 99], abY[0: 99], 1)
+# yHat10 = lwlrTest(abX[0: 99], abX[0: 99], abY[0: 99], 10)
+# print(rssError(abY[0: 99], yHat01))
+# print(rssError(abY[0: 99], yHat1))
+# print(rssError(abY[0: 99], yHat10))
+
+
+# yHat01 = lwlrTest(abX[100: 199], abX[0: 99], abY[0: 99], 0.1)
+# yHat1 = lwlrTest(abX[100: 199], abX[0: 99], abY[0: 99], 1)
+# yHat10 = lwlrTest(abX[100: 199], abX[0: 99], abY[0: 99], 10)
+# print(rssError(abY[100: 199], yHat01))
+# print(rssError(abY[100: 199], yHat1))
+# print(rssError(abY[100: 199], yHat10))
+#
+#
+# ws = standRegres(abX[0: 99], abY[0: 99])
+# yHat = np.mat(abX[100: 199]) * ws
+# print(rssError(abY[100: 199], yHat.T.A))
+
+
+def ridgeRegres(xMat, yMat, lam=0.2):
+    xTx = xMat.T*xMat
+    denom = xTx + np.eye(np.shape(xMat)[1]) * lam
+    if np.linalg.det(denom) == 0.0:
+        print('this matrix is singular, cannot do inverse')
+        return
+    ws = denom.I * (xMat.T * yMat)
+    return ws
+
+
+def ridgeTest(xArr, yArr):
+    xMat = np.mat(xArr)
+    yMat = np.mat(yArr).T
+    yMean = np.mean(yMat, 0)
+    yMat = yMat - yMean
+    xMeans = np.mean(xMat, 0)
+    xVar = np.var(xMat, 0)
+    xMat = (xMat - xMeans) / xVar
+    numTestPts = 30
+    wmat = np.zeros((numTestPts, np.shape(xMat)[1]))
+    for i in range(numTestPts):
+        ws = ridgeRegres(xMat, yMat, np.exp(i - 10))
+        wmat[i: ] = ws.T
+    return wmat
+
+
 abX, abY = loadDataSet('./machinelearninginaction/Ch08/abalone.txt')
-yHat01 = lwlrTest(abX[0: 99], abX[0: 99], abY[0: 99], 0.1)
-yHat1 = lwlrTest(abX[0: 99], abX[0: 99], abY[0: 99], 1)
-yHat10 = lwlrTest(abX[0: 99], abX[0: 99], abY[0: 99], 10)
-print(rssError(abY[0: 99], yHat01))
-print(rssError(abY[0: 99], yHat1))
-print(rssError(abY[0: 99], yHat10))
+redgeWeights = ridgeTest(abX, abY)
+fig = plt.figure()
+ax = fig.add_subplot(111)
+ax.plot(redgeWeights)
+plt.show()
 
 
-yHat01 = lwlrTest(abX[100: 199], abX[0: 99], abY[0: 99], 0.1)
-yHat1 = lwlrTest(abX[100: 199], abX[0: 99], abY[0: 99], 1)
-yHat10 = lwlrTest(abX[100: 199], abX[0: 99], abY[0: 99], 10)
-print(rssError(abY[100: 199], yHat01))
-print(rssError(abY[100: 199], yHat1))
-print(rssError(abY[100: 199], yHat10))
-
-
-ws = standRegres(abX[0: 99], abY[0: 99])
-yHat = np.mat(abX[100: 199]) * ws
-print(rssError(abY[100: 199], yHat.T.A))
 
