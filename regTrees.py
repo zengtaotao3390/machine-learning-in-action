@@ -27,23 +27,29 @@ def regLeaf(dataSet):#returns the value used for each leaf
 
 # 误差计算函数
 def regErr(dataSet):
-    return np.var(dataSet[:,-1]) * np.shape(dataSet)[0]
+    return np.var(dataSet[:, -1]) * np.shape(dataSet)[0]
+
+# 最佳方式切分数据集和生成相应的叶子节点
+def chooseBestSplit(dataSet, leafType=regLeaf, errType=regErr, ops=(1, 4)):
+    pass
 
 
-# def createTree(dataSet, leafType=regLeaf, errType=regErr, ops=(1, 4)):
-#     feat, val = chooseBestSplit(dataSet, leafType, errType, ops)
-#     if feat == None:
-#         return val
-#     retTree = {}
-#     retTree['spInd'] = feat
-#     retTree['spVal'] = val
-#     lSet, rSet = binSplitDataSet(dataSet, feat, val)
-#     retTree['left'] = createTree(lSet, leafType, errType, ops)
-#     retTree['right'] = createTree(rSet, leafType, errType, ops)
-#     return retTree
+def createTree(dataSet, leafType=regLeaf, errType=regErr, ops=(1, 4)):
+    feat, val = chooseBestSplit(dataSet, leafType, errType, ops)
+    if feat == None:
+        return val
+    retTree = {}
+    retTree['spInd'] = feat
+    retTree['spVal'] = val
+    lSet, rSet = binSplitDataSet(dataSet, feat, val)
+    retTree['left'] = createTree(lSet, leafType, errType, ops)
+    retTree['right'] = createTree(rSet, leafType, errType, ops)
+    return retTree
 
 
-tesMat = np.mat(np.eye(4))
+
+
+tesMat = np.mat(np.eye(4))`
 mat0, mat1 = binSplitDataSet(tesMat, 1, 0.5)
 print(mat0)
 print(mat1)
