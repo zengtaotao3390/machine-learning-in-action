@@ -15,8 +15,8 @@ def loadDataSet(fileName):
 def binSplitDataSet(dataSet, feature, value):
     # 如果是树回归，那么feature是一个常数，如果是模型树，其模型是一个线性方程
     # 所以这个的mat0是一个尝试也可以理解
-    mat0 = dataSet[np.nonzero(dataSet[:, feature] > value)[0], :][0]
-    mat1 = dataSet[np.nonzero(dataSet[:, feature] <= value)[0], :][0]
+    mat0 = dataSet[np.nonzero(dataSet[:, feature] > value)[0], :]
+    mat1 = dataSet[np.nonzero(dataSet[:, feature] <= value)[0], :]
     return mat0, mat1
 
 
@@ -43,8 +43,8 @@ def regErr(dataSet):
 #     return retTree
 
 
-tesMat = [[1., 0., 0., 0.],
-          [0., 1., 0., 0.],
-          [0., 0., 1., 0.],
-          [0., 0., 0. ]]
+tesMat = np.mat(np.eye(4))
+mat0, mat1 = binSplitDataSet(tesMat, 1, 0.5)
+print(mat0)
+print(mat1)
 
