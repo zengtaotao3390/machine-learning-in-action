@@ -129,11 +129,41 @@ def prune(tree, testData):
         return tree
 
 
-mydata2 = loadDataSet('./machinelearninginaction/Ch09/ex2.txt')
-myMat2 = np.mat(mydata2)
-myTree = createTree(myMat2)
-print(myTree)
-myDataTest = loadDataSet('./machinelearninginaction/Ch09/ex2test.txt')
-myMatTest = np.mat(myDataTest)
-pruneTree = prune(myTree, myMatTest)
-print(pruneTree)
+# mydata2 = loadDataSet('./machinelearninginaction/Ch09/ex2.txt')
+# myMat2 = np.mat(mydata2)
+# myTree = createTree(myMat2)
+# print(myTree)
+# myDataTest = loadDataSet('./machinelearninginaction/Ch09/ex2test.txt')
+# myMatTest = np.mat(myDataTest)
+# pruneTree = prune(myTree, myMatTest)
+# print(pruneTree)
+
+
+def linearSolve(dataSet):
+    m, n = np.shape(dataSet)
+    X = np.mat(np.ones((m , n)))
+    Y = np.mat(np.ones((m, 1)))
+    # X 的第一个变量是人为增加的bais 偏移
+    X[:, 1:n] = dataSet[:, 0:n-1]
+    Y = dataSet[:, -1]
+    xTx = X.T * X
+    if np.linalg.det(xTx) == 0.0:
+        raise NameError('This matrix is singular, cannot do inverse, try increasing the second value of ops')
+    ws = xTx.I * (X.T * Y)
+    return ws, X, Y
+
+
+def modelLeaf(dataSet):
+    ws, X, Y = linearSolve(dataSet)
+    return ws
+
+
+def modelErr(dataSet):
+    ws, X, Y = linearSolve(dataSet)
+    yHat = X * ws
+    return np.sum(np.power(Y - yHat, 2))
+
+
+myMat2 = np.mat(loadDataSet('./machinelearninginaction/Ch09/exp2.txt'))
+modelTree = createTree(myMat2, leafType=modelLeaf, errType=modelErr, ops=(1, 10))
+print(modelTree)
