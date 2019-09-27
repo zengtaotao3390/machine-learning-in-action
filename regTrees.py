@@ -7,7 +7,7 @@ def loadDataSet(fileName):
         lines = fr.readlines()
     for line in lines:
         curLine = line.strip().split("\t")
-        fltLine = map(float, curLine)
+        fltLine = list(map(float, curLine))
         dataMat.append(fltLine)
     return dataMat
 
@@ -31,7 +31,32 @@ def regErr(dataSet):
 
 # 最佳方式切分数据集和生成相应的叶子节点
 def chooseBestSplit(dataSet, leafType=regLeaf, errType=regErr, ops=(1, 4)):
-    pass
+    tolS = ops[0]
+    tolN = ops[1]
+    # 当所有值相等，退出
+    if len(set(dataSet[:, -1].T.tolist()[0])) == 1:
+        None, leafType(dataSet)
+    m,n = np.shape(dataSet)
+    S = errType(dataSet)
+    bestS = np.inf
+    bestIndex = 0
+    bestValue = 0
+    for featIndex in range(n -1):
+        for splitVal in set(dataSet[:, featIndex].T.tolist()[0]):
+            mat0, mat1 = binSplitDataSet(dataSet, featIndex, splitVal)
+            if (np.shape(mat0)[0] < tolN) or (np.shape(mat1)[0] < tolN):
+                continue
+            newS = errType(mat0) + errType(mat1)
+            if newS < bestS:
+                bestS = newS
+                bestIndex = featIndex
+                bestValue = splitVal
+    if (S - bestS) < tolS:
+        return None, leafType(dataSet)
+    mat0, mat1 = binSplitDataSet(dataSet, bestIndex, bestValue)
+    if (np.shape(mat0)[0] < tolN) or (np.shape(mat1)[0] < tolN):
+        return None, leafType(dataSet)
+    return bestIndex, bestValue
 
 
 def createTree(dataSet, leafType=regLeaf, errType=regErr, ops=(1, 4)):
@@ -47,10 +72,19 @@ def createTree(dataSet, leafType=regLeaf, errType=regErr, ops=(1, 4)):
     return retTree
 
 
+# tesMat = np.mat(np.eye(4))
+# mat0, mat1 = binSplitDataSet(tesMat, 1, 0.5)
+# print(mat0)
+# print(mat1)
 
+myData = loadDataSet('./machinelearninginaction/Ch09/ex00.txt')
+myMat = np.mat(myData)
+myTree = createTree(myMat)
+print(myTree)
 
-tesMat = np.mat(np.eye(4))`
-mat0, mat1 = binSplitDataSet(tesMat, 1, 0.5)
-print(mat0)
-print(mat1)
-
+myData = loadDataSet('./machinelearninginaction/Ch09/ex0.txt')
+myMat = np.mat(myData)
+myTree = createTree(myMat)
+print(myTree)
+myTree = createTree(myMat, ops=(0, 1))
+print(myTree)
