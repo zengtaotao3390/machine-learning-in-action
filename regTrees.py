@@ -77,14 +77,63 @@ def createTree(dataSet, leafType=regLeaf, errType=regErr, ops=(1, 4)):
 # print(mat0)
 # print(mat1)
 
-myData = loadDataSet('./machinelearninginaction/Ch09/ex00.txt')
-myMat = np.mat(myData)
-myTree = createTree(myMat)
-print(myTree)
+# myData = loadDataSet('./machinelearninginaction/Ch09/ex00.txt')
+# myMat = np.mat(myData)
+# myTree = createTree(myMat)
+# print(myTree)
+#
+# myData = loadDataSet('./machinelearninginaction/Ch09/ex0.txt')
+# myMat = np.mat(myData)
+# myTree = createTree(myMat)
+# print(myTree)
+# myTree = createTree(myMat, ops=(0, 1))
+# print(myTree)
+#
+# np.power()
 
-myData = loadDataSet('./machinelearninginaction/Ch09/ex0.txt')
-myMat = np.mat(myData)
-myTree = createTree(myMat)
+
+def isTree(obj):
+    return (type(obj).__name__ == 'dict')
+
+
+def getMean(tree):
+    if isTree(tree['right']):
+       tree['right'] = getMean(tree['right'])
+    if isTree(tree['left']):
+        tree['left'] = getMean(tree['left'])
+    return (tree['left'] + tree['right']) / 2.0
+
+
+def prune(tree, testData):
+    # 如果没有数据落入此分支区域，说明此树与测试数据完全不吻合，那么将进行塌陷，塌陷这个名字取得好
+    if np.shape(testData)[0] == 0:
+        return getMean(tree)
+    # 不是根节点
+    if (isTree(tree['left'])) or (isTree(tree['right'])):
+        lSet, rSet = binSplitDataSet(testData, tree['spInd'], tree['spVal'])
+    if isTree(tree['left']):
+        tree['left'] = prune(tree['left'], lSet)
+    if isTree(tree['right']):
+        tree['right'] = prune(tree['right'], rSet)
+    if not isTree(tree['left']) and not isTree(tree['right']):
+        lSet, rSet = binSplitDataSet(testData, tree['spInd'], tree['spVal'])
+        errorNoMerge = np.sum(np.power(lSet[:, -1] - tree['left'], 2)) + np.sum(np.power(rSet[:, -1] - tree['right'], 2))
+        treeMean = (tree['right'] + tree['left']) / 2.0
+        errorMerge = np.sum(np.power(testData[:, -1] - treeMean, 2))
+        if errorMerge < errorNoMerge:
+            print('merging')
+            return treeMean
+        else:
+            return tree
+    else:
+        return tree
+
+
+mydata2 = loadDataSet('./machinelearninginaction/Ch09/ex2.txt')
+myMat2 = np.mat(mydata2)
+myTree = createTree(myMat2)
 print(myTree)
-myTree = createTree(myMat, ops=(0, 1))
-print(myTree)
+myDataTest = loadDataSet('./machinelearninginaction/Ch09/ex2test.txt')
+myMatTest = np.mat(myDataTest)
+pruneTree = prune(myTree, myMatTest)
+print(pruneTree)
