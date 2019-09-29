@@ -164,6 +164,58 @@ def modelErr(dataSet):
     return np.sum(np.power(Y - yHat, 2))
 
 
-myMat2 = np.mat(loadDataSet('./machinelearninginaction/Ch09/exp2.txt'))
-modelTree = createTree(myMat2, leafType=modelLeaf, errType=modelErr, ops=(1, 10))
-print(modelTree)
+# myMat2 = np.mat(loadDataSet('./machinelearninginaction/Ch09/exp2.txt'))
+# modelTree = createTree(myMat2, leafType=modelLeaf, errType=modelErr, ops=(1, 10))
+# print(modelTree)
+
+
+def modelTreeEval(model, inDat):
+    n = np.shape(inDat)[1]
+    X = np.mat(np.ones((1, n + 1)))
+    X[:, 1: n+1] = inDat
+    return float(X * model)
+
+
+def regTreeEval(model, inDat):
+    return float(model)
+
+
+def treeForecast(tree, inData, modelEval=regTreeEval):
+    if not isTree(tree):
+        return modelTreeEval(tree, inData)
+    if inData[tree['spInd']] > tree['spVal']:
+        if isTree(tree['left']):
+            return treeForecast(tree['left'], inData, modelEval)
+        else:
+            return modelEval(tree['left'], inData)
+    else:
+        if isTree(tree['right']):
+            return treeForecast(tree['right'], inData, modelEval)
+        else:
+            return modelEval(tree['right'], inData)
+
+
+def createForecast(tree, testData, modelEval=regTreeEval):
+    m = len(testData)
+    yHat = np.mat(np.zeros((m, 1)))
+    for i in range(m):
+        yHat[i, 0] = treeForecast(tree, np.mat(testData[i]), modelEval)
+    return yHat
+
+
+trainData = np.mat(loadDataSet('./machinelearninginaction/Ch09/bikeSpeedVsIq_train.txt'))
+testData = np.mat(loadDataSet('./machinelearninginaction/Ch09/bikeSpeedVsIq_test.txt'))
+trainTree = createTree(trainData, ops=(1, 20))
+yHat = createForecast(trainTree, testData[:, 0])
+print(np.corrcoef(yHat, testData[:, 1], rowvar=0)[0, 1])
+
+
+trainTreeModel = createTree(trainData, leafType=modelLeaf, errType=modelErr, ops=(1, 20))
+yHat = createForecast(trainTreeModel, testData[:, 0], modelTreeEval)
+print(np.corrcoef(yHat, testData[:, 1], rowvar=0)[0, 1])
+
+
+ws, X, Y = linearSolve(trainData)
+for i in range(np.shape(testData)[0]):
+    yHat[i] = testData[i, 0] * ws[1, 0] + ws[0, 0]
+print(np.corrcoef(yHat, testData[:, 1], rowvar=0)[0, 1])
