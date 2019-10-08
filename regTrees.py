@@ -203,19 +203,19 @@ def createForecast(tree, testData, modelEval=regTreeEval):
     return yHat
 
 
-trainData = np.mat(loadDataSet('./machinelearninginaction/Ch09/bikeSpeedVsIq_train.txt'))
-testData = np.mat(loadDataSet('./machinelearninginaction/Ch09/bikeSpeedVsIq_test.txt'))
-trainTree = createTree(trainData, ops=(1, 20))
-yHat = createForecast(trainTree, testData[:, 0])
-print(np.corrcoef(yHat, testData[:, 1], rowvar=0)[0, 1])
+# trainData = np.mat(loadDataSet('./machinelearninginaction/Ch09/bikeSpeedVsIq_train.txt'))
+# testData = np.mat(loadDataSet('./machinelearninginaction/Ch09/bikeSpeedVsIq_test.txt'))
+# trainTree = createTree(trainData, ops=(1, 20))
+# yHat = createForecast(trainTree, testData[:, 0])
+# print(np.corrcoef(yHat, testData[:, 1], rowvar=0)[0, 1])
 
 
-trainTreeModel = createTree(trainData, leafType=modelLeaf, errType=modelErr, ops=(1, 20))
-yHat = createForecast(trainTreeModel, testData[:, 0], modelTreeEval)
-print(np.corrcoef(yHat, testData[:, 1], rowvar=0)[0, 1])
+# trainTreeModel = createTree(trainData, leafType=modelLeaf, errType=modelErr, ops=(1, 20))
+# yHat = createForecast(trainTreeModel, testData[:, 0], modelTreeEval)
+# print(np.corrcoef(yHat, testData[:, 1], rowvar=0)[0, 1])
 
 
-ws, X, Y = linearSolve(trainData)
-for i in range(np.shape(testData)[0]):
-    yHat[i] = testData[i, 0] * ws[1, 0] + ws[0, 0]
-print(np.corrcoef(yHat, testData[:, 1], rowvar=0)[0, 1])
+# ws, X, Y = linearSolve(trainData)
+# for i in range(np.shape(testData)[0]):
+#     yHat[i] = testData[i, 0] * ws[1, 0] + ws[0, 0]
+# print(np.corrcoef(yHat, testData[:, 1], rowvar=0)[0, 1])
