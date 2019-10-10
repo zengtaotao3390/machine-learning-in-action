@@ -118,5 +118,11 @@ def relusFromConsequence(frequestSet, H, supportData, BigRuleList, minConfidence
         if(len(Hmp1) > 1):
             relusFromConsequence(frequestSet, Hmp1, supportData, BigRuleList, minConfidence)
 
-L, supportData = apriori(dataSet, 0.2)
-generateRules(L, supportData, 0.7)
+# L, supportData = apriori(dataSet, 0.2)
+# generateRules(L, supportData, 0.7)
+
+mushDataSet = [line.split() for line in open('./machinelearninginaction/Ch11/mushroom.dat').readlines()]
+L, suppData = apriori(mushDataSet, minSupport=0.3)
+for item in L[3]:
+    if item.intersection('2'):
+        print(item)
