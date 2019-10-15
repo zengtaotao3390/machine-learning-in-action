@@ -1,3 +1,6 @@
+import time
+import apriori
+
 class treeNode:
     def __init__(self, nameValue, numOccur, parentNode):
         self.name = nameValue
@@ -153,8 +156,21 @@ def mineTree(inTree, myTableHeader, minSupport, pathSet, frequentItems):
     return frequentItems
 
 
-simpleDat = loadSimpDat()
-initSet = createInitSet(simpleDat)
-myFPTree, myHeaderTab = createTree(initSet, 3)
+# simpleDat = loadSimpDat()
+# initSet = createInitSet(simpleDat)
+# myFPTree, myHeaderTab = createTree(initSet, 3)
+# frequentItems = []
+# mineTree(myFPTree, myHeaderTab, 3, set([]), frequentItems)
+parsedData = [line.split() for line in open('./machinelearninginaction/Ch12/kosarak.dat').readlines()]
+initSet = createInitSet(parsedData)
+timeStart = time.time()
+myFPTree, myHeaderTab = createTree(initSet, 100000)
 frequentItems = []
-mineTree(myFPTree, myHeaderTab, 3, set([]), frequentItems)
+mineTree(myFPTree, myHeaderTab, 100000, set([]), frequentItems)
+print(frequentItems)
+print('timeEnd:', time.time() - timeStart)
+
+timeStart = time.time()
+L, supportData = apriori.apriori(parsedData, 0.1)
+apriori.generateRules(L, supportData, 0.7)
+print('timeEnd:', time.time() - timeStart)

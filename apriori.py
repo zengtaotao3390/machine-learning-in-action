@@ -46,7 +46,7 @@ def aprioriGen(Lk, k):
     lenLk = len(Lk)
     for i in range(lenLk):
         for j in range(i+1, lenLk):
-            # 当k-2项相同时，两个集合合并：例如k= 3 {0,1}{0,2}{1,2} 最终结果为{1,2,3}
+            # 当k-2项相同时，两个集合合并：例如k= 3 {0,1}{0,2}{1,2} 最终结果为{0,1,2}
             # 当k=4 有{0,1,3}{0,1,2}{1,2,3} {1,2,4} 最终合并结果为4的集合有{0,1,2,3}{1,2,3,4}
             L1 = list(Lk[i])[: k-2]
             L2 = list(Lk[j])[: k-2]
@@ -118,11 +118,11 @@ def relusFromConsequence(frequestSet, H, supportData, BigRuleList, minConfidence
         if(len(Hmp1) > 1):
             relusFromConsequence(frequestSet, Hmp1, supportData, BigRuleList, minConfidence)
 
-# L, supportData = apriori(dataSet, 0.2)
-# generateRules(L, supportData, 0.7)
+L, supportData = apriori(dataSet, 0.2)
+generateRules(L, supportData, 0.7)
 
-mushDataSet = [line.split() for line in open('./machinelearninginaction/Ch11/mushroom.dat').readlines()]
-L, suppData = apriori(mushDataSet, minSupport=0.3)
-for item in L[3]:
-    if item.intersection('2'):
-        print(item)
+# mushDataSet = [line.split() for line in open('./machinelearninginaction/Ch11/mushroom.dat').readlines()]
+# L, suppData = apriori(mushDataSet, minSupport=0.3)
+# for item in L[3]:
+#     if item.intersection('2'):
+#         print(item)
