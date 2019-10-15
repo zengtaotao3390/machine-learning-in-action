@@ -97,7 +97,39 @@ def createInitSet(dataSet):
     return returnDic
 
 
+# simpleDat = loadSimpDat()
+# initSet = createInitSet(simpleDat)
+# myFPTree, myHeaderTab = createTree(initSet, 3)
+# myFPTree.display()
+# print(myHeaderTab)
+
+
+def ascendTree(leafNode, prefixPath):
+    if leafNode.parent != None:
+        prefixPath.append(leafNode.name)
+        ascendTree(leafNode.parent, prefixPath)
+
+
+def findPrefixPath(basePattern, treeNode):
+    conditionPatterns = {}
+    while treeNode != None:
+        prefixPath = []
+        ascendTree(treeNode, prefixPath)
+        if len(prefixPath) > 1:
+            conditionPatterns[frozenset(prefixPath[1:])] = treeNode.count
+        treeNode = treeNode.nodeLink
+    return conditionPatterns
+
+
+
 simpleDat = loadSimpDat()
 initSet = createInitSet(simpleDat)
 myFPTree, myHeaderTab = createTree(initSet, 3)
-myFPTree.display()
+conditionPatterns = findPrefixPath('x', myHeaderTab['x'][1])
+print(conditionPatterns)
+conditionPatterns = findPrefixPath('r', myHeaderTab['r'][1])
+print(conditionPatterns)
+
+
+# frequentItems = []
+# mineTree(myFPTree, myHeaderTab, 3, set([]), frequentItems)
