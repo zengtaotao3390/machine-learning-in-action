@@ -116,20 +116,45 @@ def findPrefixPath(basePattern, treeNode):
         prefixPath = []
         ascendTree(treeNode, prefixPath)
         if len(prefixPath) > 1:
+            # 排除自身
             conditionPatterns[frozenset(prefixPath[1:])] = treeNode.count
         treeNode = treeNode.nodeLink
     return conditionPatterns
 
 
+# simpleDat = loadSimpDat()
+# initSet = createInitSet(simpleDat)
+# myFPTree, myHeaderTab = createTree(initSet, 3)
+# conditionPatterns = findPrefixPath('x', myHeaderTab['x'][1])
+# print(conditionPatterns)
+# conditionPatterns = findPrefixPath('r', myHeaderTab['r'][1])
+# print(conditionPatterns)
+# conditionPatterns = findPrefixPath('t', myHeaderTab['t'][1])
+# print(conditionPatterns)
+
+
+def mineTree(inTree, myTableHeader, minSupport, pathSet, frequentItems):
+    orderedElement  = [v[0] for v in sorted(myTableHeader.items(), key=lambda p: p[0])]
+    for basePattern in orderedElement:
+        # 拷贝当前前置路径，python是按照引用传递，不然递归过后所有值将更改
+        prefixPath = pathSet.copy()
+        # 增加前置路径
+        prefixPath.add(basePattern)
+        # 在循环中出现的前置路径，均为频繁项，因为在构建条件树的过程中已经过滤了频繁项
+        frequentItems.append(prefixPath)
+        # 获取条件基
+        conditionPatterns = findPrefixPath(basePattern, myTableHeader[basePattern][1])
+        # 根据条件基，得到条件树
+        conditionTree, headerTable = createTree(conditionPatterns, minSupport)
+        if conditionTree != None:
+            print('condition: ', prefixPath)
+            conditionTree.display(1)
+            mineTree(conditionTree, headerTable, minSupport, prefixPath, frequentItems)
+    return frequentItems
+
 
 simpleDat = loadSimpDat()
 initSet = createInitSet(simpleDat)
 myFPTree, myHeaderTab = createTree(initSet, 3)
-conditionPatterns = findPrefixPath('x', myHeaderTab['x'][1])
-print(conditionPatterns)
-conditionPatterns = findPrefixPath('r', myHeaderTab['r'][1])
-print(conditionPatterns)
-
-
-# frequentItems = []
-# mineTree(myFPTree, myHeaderTab, 3, set([]), frequentItems)
+frequentItems = []
+mineTree(myFPTree, myHeaderTab, 3, set([]), frequentItems)
